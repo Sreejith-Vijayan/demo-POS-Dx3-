@@ -50,50 +50,75 @@ export function useOrderStatus(orderId: number) {
 
 export function useCreateOrder() {
   const qc = useQueryClient()
-  return useMutation(captainApi.createOrder, {
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['captain', 'orders'] }),
-  })
+  return useMutation({
+    mutationFn: captainApi.createOrder,
+    onSuccess: () => {
+        qc.invalidateQueries({
+            queryKey: ['captain', 'orders'],
+        })
+    },
+})
 }
 
 export function useUpdateOrder() {
   const qc = useQueryClient()
-  return useMutation(({ orderId, payload }: { orderId: number; payload: unknown }) =>
-    captainApi.updateOrder(orderId, payload),
-    {
-      onSuccess: () => qc.invalidateQueries({ queryKey: ['captain', 'orders'] }),
+  return useMutation({
+    mutationFn: ({ orderId, payload }) =>
+        captainApi.updateOrder(orderId, payload),
+    onSuccess: () => {
+        qc.invalidateQueries({
+            queryKey: ['captain', 'orders'],
+        })
     },
-  )
+})
 }
 
 export function useHoldOrder() {
   const qc = useQueryClient()
-  return useMutation((orderId: number) => captainApi.holdOrder(orderId), {
+  return useMutation({
+    mutationFn: (orderId: number) => captainApi.holdOrder(orderId),
+
     onSuccess: () => qc.invalidateQueries({ queryKey: ['captain', 'orders'] }),
   })
 }
 
 export function useResumeOrder() {
   const qc = useQueryClient()
-  return useMutation((orderId: number) => captainApi.resumeOrder(orderId), {
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['captain', 'orders'] }),
-  })
+  return useMutation({
+    mutationFn: (orderId: number) =>
+        captainApi.resumeOrder(orderId),
+    onSuccess: () => {
+        qc.invalidateQueries({
+            queryKey: ['captain', 'orders'],
+        })
+    },
+})
 }
 
 export function useSendKOT() {
   const qc = useQueryClient()
-  return useMutation((orderId: number) => captainApi.sendKot(orderId), {
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['captain', 'orders'] }),
-  })
+    return useMutation({
+    mutationFn: (orderId: number) =>
+        captainApi.sendKot(orderId),
+    onSuccess: () => {
+        qc.invalidateQueries({
+            queryKey: ['captain', 'orders'],
+        })
+    },
+})
 }
 
 export function useCancelItem() {
   const qc = useQueryClient()
-  return useMutation(({ orderId, payload }: { orderId: number; payload: { order_item_id: number; reason: string } }) =>
-    captainApi.cancelItem(orderId, payload),
-    {
-      onSuccess: () => qc.invalidateQueries({ queryKey: ['captain', 'orders'] }),
+  return useMutation({
+    mutationFn: ({ orderId, payload }) =>
+        captainApi.cancelItem(orderId, payload),
+    onSuccess: () => {
+        qc.invalidateQueries({
+            queryKey: ['captain', 'orders'],
+        })
     },
-  )
+})
 }
 
 export function useOrderHistory(tableId: number) {
