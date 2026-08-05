@@ -33,6 +33,7 @@ ROLE_PERMISSIONS: Dict[RoleEnum, Set[PermissionEnum]] = {
         PermissionEnum.MODIFY_ORDERS,
         PermissionEnum.VIEW_ORDERS,
         PermissionEnum.SEND_KOT,
+        PermissionEnum.CANCEL_ORDERS,
         PermissionEnum.VIEW_MENU,
         PermissionEnum.VIEW_TABLES,
         PermissionEnum.MANAGE_TABLES,

@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends
 
 from app.core.enums import PermissionEnum
 from app.permissions import require_permissions
-from app.schemas import MenuItemCreate, OrderCreate, OrderUpdate
+from app.schemas import MenuItemCreate, OrderCancelItem, OrderCreate, OrderUpdate
 from app.services import MenuService, OrderService, get_menu_service, get_order_service
 
 router = APIRouter(prefix="/menu", tags=["menu"])
@@ -124,6 +124,98 @@ async def update_order(
     service: OrderService = Depends(get_order_service),
 ):
     return service.update_order(order_id, payload)
+
+
+@orders_router.post("/{order_id}/hold")
+async def hold_order(
+    order_id: int,
+    _: object = Depends(require_permissions(PermissionEnum.MODIFY_ORDERS)),
+    service: OrderService = Depends(get_order_service),
+):
+    return service.hold_order(order_id)
+
+
+@orders_router.post("/{order_id}/resume")
+async def resume_order(
+    order_id: int,
+    _: object = Depends(require_permissions(PermissionEnum.MODIFY_ORDERS)),
+    service: OrderService = Depends(get_order_service),
+):
+    return service.resume_order(order_id)
+
+
+@orders_router.post("/{order_id}/send-kot")
+async def send_order_to_kitchen(
+    order_id: int,
+    _: object = Depends(require_permissions(PermissionEnum.SEND_KOT)),
+    service: OrderService = Depends(get_order_service),
+):
+    return service.send_kot(order_id)
+
+
+@orders_router.post("/{order_id}/cancel-item")
+async def cancel_order_item(
+    order_id: int,
+    payload: OrderCancelItem,
+    _: object = Depends(require_permissions(PermissionEnum.CANCEL_ORDERS)),
+    service: OrderService = Depends(get_order_service),
+):
+    return service.cancel_order_item(order_id, payload.order_item_id, payload.reason)
+
+
+@orders_router.get("/{order_id}/status")
+async def order_status(
+    order_id: int,
+    _: object = Depends(require_permissions(PermissionEnum.VIEW_ORDERS)),
+    service: OrderService = Depends(get_order_service),
+):
+    return service.get_order_status(order_id)
+
+
+@orders_router.get("/table/{table_id}")
+async def orders_by_table(
+    table_id: int,
+    _: object = Depends(require_permissions(PermissionEnum.VIEW_ORDERS)),
+    service: OrderService = Depends(get_order_service),
+):
+    orders = service.get_orders_by_table(table_id)
+    return {
+        "items": [
+            {
+                "id": o.id,
+                "order_number": o.order_number,
+                "status": o.status,
+                "table_id": o.table_id,
+                "total_amount": float(o.total_amount),
+                "created_at": o.created_at.isoformat() if o.created_at else None,
+            }
+            for o in orders
+        ],
+        "total": len(orders),
+    }
+
+
+@orders_router.get("/history/{table_id}")
+async def order_history_by_table(
+    table_id: int,
+    _: object = Depends(require_permissions(PermissionEnum.VIEW_ORDERS)),
+    service: OrderService = Depends(get_order_service),
+):
+    orders = service.get_order_history(table_id)
+    return {
+        "items": [
+            {
+                "id": o.id,
+                "order_number": o.order_number,
+                "status": o.status,
+                "table_id": o.table_id,
+                "total_amount": float(o.total_amount),
+                "created_at": o.created_at.isoformat() if o.created_at else None,
+            }
+            for o in orders
+        ],
+        "total": len(orders),
+    }
 
 
 @orders_router.delete("/{order_id}")

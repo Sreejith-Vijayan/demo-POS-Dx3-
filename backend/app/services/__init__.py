@@ -7,7 +7,7 @@ from fastapi import Depends
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-from app.models import Order
+from app.models import MenuItem, Order, OrderItem
 from app.repositories import (
     CustomerRepository,
     EmployeeRepository,
@@ -21,6 +21,7 @@ from app.repositories import (
     SettingRepository,
     TableRepository,
 )
+from app.core.enums import OrderStatus
 from app.schemas import (
     DashboardStats,
     FeedbackCreate,
@@ -59,23 +60,244 @@ class OrderService:
     def get_order(self, order_id: int) -> Optional[Order]:
         return self.orders.get(order_id)
 
+    def get_orders_by_table(self, table_id: int) -> List[Order]:
+        return (
+            self.db.query(Order)
+            .filter(Order.table_id == table_id)
+            .order_by(Order.created_at.desc())
+            .all()
+        )
+
+    def get_current_order(self, table_id: int) -> Optional[Order]:
+        return (
+            self.db.query(Order)
+            .filter(
+                Order.table_id == table_id,
+                Order.status.in_(["pending", "confirmed", "preparing", "held"]),
+            )
+            .order_by(Order.created_at.desc())
+            .first()
+        )
+
+    def _next_order_number(self) -> str:
+        count = max(self.orders.count() or 0, 0)
+        return f"ORD-{count + 1:05d}"
+
     def create_order(self, payload: OrderCreate) -> dict:
-        # TODO: Implement full order creation with stock checks, pricing, KOT
+        items = []
+        subtotal = 0
+        tax_amount = 0
+
+        for item_payload in payload.items:
+            menu_item = self.db.get(MenuItem, item_payload.menu_item_id)
+            if not menu_item:
+                continue
+            line_total = float(menu_item.price) * item_payload.quantity
+            item_tax = line_total * float(menu_item.tax_percent or 0) / 100.0
+            subtotal += line_total
+            tax_amount += item_tax
+            items.append(
+                OrderItem(
+                    menu_item_id=menu_item.id,
+                    quantity=item_payload.quantity,
+                    unit_price=menu_item.price,
+                    tax_amount=item_tax,
+                    total_price=line_total + item_tax,
+                    status="pending",
+                    notes=item_payload.notes,
+                )
+            )
+
+        order = Order(
+            order_number=self._next_order_number(),
+            table_id=payload.table_id,
+            customer_id=payload.customer_id,
+            order_type=payload.order_type,
+            status="pending",
+            subtotal=subtotal,
+            tax_amount=tax_amount,
+            discount_amount=0,
+            total_amount=subtotal + tax_amount,
+            notes=payload.notes,
+        )
+        self.db.add(order)
+        self.db.flush()
+
+        for item in items:
+            item.order_id = order.id
+            self.db.add(item)
+
+        self.db.commit()
+        self.db.refresh(order)
         return {
-            "id": 0,
-            "order_number": "TODO-0001",
-            "status": "pending",
-            "message": "Order creation stub — implement business logic",
-            "payload": payload.model_dump(),
+            "id": order.id,
+            "order_number": order.order_number,
+            "status": order.status,
+            "subtotal": float(order.subtotal),
+            "tax_amount": float(order.tax_amount),
+            "total_amount": float(order.total_amount),
+            "table_id": order.table_id,
+            "items": [
+                {
+                    "id": i.id,
+                    "menu_item_id": i.menu_item_id,
+                    "quantity": i.quantity,
+                    "unit_price": float(i.unit_price),
+                    "total_price": float(i.total_price),
+                    "status": i.status,
+                    "kot_sent": i.kot_sent,
+                    "notes": i.notes,
+                }
+                for i in order.items
+            ],
         }
 
     def update_order(self, order_id: int, payload: OrderUpdate) -> dict:
-        # TODO: Implement order modification rules
-        return {"id": order_id, "message": "Order update stub", "payload": payload.model_dump()}
+        order = self.get_order(order_id)
+        if not order:
+            return {"id": order_id, "message": "Order not found"}
+
+        if order.status in ["billed", "paid", "completed", "cancelled"]:
+            return {"id": order_id, "message": "Cannot modify completed or billed order"}
+
+        if payload.notes is not None:
+            order.notes = payload.notes
+
+        if payload.status is not None:
+            order.status = payload.status
+
+        if payload.items is not None:
+            for item in order.items:
+                self.db.delete(item)
+            self.db.flush()
+
+            subtotal = 0
+            tax_amount = 0
+            new_items = []
+            for item_payload in payload.items:
+                menu_item = self.db.get(MenuItem, item_payload.menu_item_id)
+                if not menu_item:
+                    continue
+                line_total = float(menu_item.price) * item_payload.quantity
+                item_tax = line_total * float(menu_item.tax_percent or 0) / 100.0
+                subtotal += line_total
+                tax_amount += item_tax
+                new_items.append(
+                    OrderItem(
+                        order_id=order.id,
+                        menu_item_id=menu_item.id,
+                        quantity=item_payload.quantity,
+                        unit_price=menu_item.price,
+                        tax_amount=item_tax,
+                        total_price=line_total + item_tax,
+                        status="pending",
+                        notes=item_payload.notes,
+                    )
+                )
+            order.subtotal = subtotal
+            order.tax_amount = tax_amount
+            order.total_amount = subtotal + tax_amount
+            for item in new_items:
+                self.db.add(item)
+
+        self.db.commit()
+        self.db.refresh(order)
+        return {
+            "id": order.id,
+            "status": order.status,
+            "subtotal": float(order.subtotal),
+            "tax_amount": float(order.tax_amount),
+            "total_amount": float(order.total_amount),
+            "items": [
+                {
+                    "id": i.id,
+                    "menu_item_id": i.menu_item_id,
+                    "quantity": i.quantity,
+                    "unit_price": float(i.unit_price),
+                    "total_price": float(i.total_price),
+                    "status": i.status,
+                    "kot_sent": i.kot_sent,
+                    "notes": i.notes,
+                }
+                for i in order.items
+            ],
+        }
 
     def delete_order(self, order_id: int) -> dict:
         # TODO: Soft-cancel with audit log
         return {"id": order_id, "message": "Order delete stub"}
+
+    def hold_order(self, order_id: int) -> dict:
+        order = self.get_order(order_id)
+        if not order:
+            return {"id": order_id, "message": "Order not found"}
+        if order.status in [OrderStatus.BILLED.value, OrderStatus.PAID.value, OrderStatus.CANCELLED.value]:
+            return {"id": order_id, "message": "Cannot hold completed or billed order"}
+        order.status = OrderStatus.HELD.value
+        self.db.commit()
+        self.db.refresh(order)
+        return {"id": order.id, "status": order.status}
+
+    def resume_order(self, order_id: int) -> dict:
+        order = self.get_order(order_id)
+        if not order:
+            return {"id": order_id, "message": "Order not found"}
+        if order.status != OrderStatus.HELD.value:
+            return {"id": order_id, "message": "Only held orders can be resumed"}
+        order.status = OrderStatus.PENDING.value
+        self.db.commit()
+        self.db.refresh(order)
+        return {"id": order.id, "status": order.status}
+
+    def send_kot(self, order_id: int) -> dict:
+        order = self.get_order(order_id)
+        if not order:
+            return {"id": order_id, "message": "Order not found"}
+        if not order.items:
+            return {"id": order_id, "message": "Cannot send empty order"}
+        for item in order.items:
+            item.kot_sent = True
+            if item.status == OrderStatus.PENDING.value:
+                item.status = OrderStatus.CONFIRMED.value
+        order.status = OrderStatus.CONFIRMED.value
+        self.db.commit()
+        self.db.refresh(order)
+        return {"id": order.id, "status": order.status, "message": "KOT sent"}
+
+    def cancel_order_item(self, order_id: int, order_item_id: int, reason: str) -> dict:
+        order = self.get_order(order_id)
+        if not order:
+            return {"id": order_id, "message": "Order not found"}
+        item = self.db.get(OrderItem, order_item_id)
+        if not item or item.order_id != order_id:
+            return {"id": order_id, "message": "Order item not found"}
+        if order.status in [OrderStatus.BILLED.value, OrderStatus.PAID.value, OrderStatus.COMPLETED.value, OrderStatus.CANCELLED.value]:
+            return {"id": order_id, "message": "Cannot cancel items from completed or billed order"}
+        item.status = OrderStatus.CANCELLED.value
+        item.notes = f"Cancelled: {reason}"
+        self.db.commit()
+        self.db.refresh(item)
+        return {
+            "order_id": order_id,
+            "order_item_id": item.id,
+            "status": item.status,
+            "reason": reason,
+        }
+
+    def get_order_status(self, order_id: int) -> dict:
+        order = self.get_order(order_id)
+        if not order:
+            return {"id": order_id, "message": "Order not found"}
+        return {"id": order.id, "status": order.status, "updated_at": order.updated_at.isoformat() if order.updated_at else None}
+
+    def get_order_history(self, table_id: int) -> List[Order]:
+        return (
+            self.db.query(Order)
+            .filter(Order.table_id == table_id)
+            .order_by(Order.created_at.desc())
+            .limit(50)
+            .all()
+        )
 
 
 class CaptainService:

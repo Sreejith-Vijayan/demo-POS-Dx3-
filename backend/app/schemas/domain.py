@@ -81,6 +81,11 @@ class OrderUpdate(BaseModel):
     items: Optional[List[OrderItemCreate]] = None
 
 
+class OrderCancelItem(BaseModel):
+    order_item_id: int
+    reason: str
+
+
 # --- Tables ---
 class TableOut(ORMModel):
     id: int

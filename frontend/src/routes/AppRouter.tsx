@@ -4,7 +4,7 @@ import { RequireRole } from '@/routes/RequireRole'
 import { RoleSelectionPage } from '@/pages/RoleSelectionPage'
 import { DashboardOverviewPage, DashboardSalesPage } from '@/pages/dashboard/DashboardPages'
 import {
-  CaptainHomePage,
+  CaptainDashboardPage,
   CaptainOrderPage,
   CaptainOrdersPage,
   CaptainTablesPage,
@@ -49,9 +49,10 @@ export function AppRouter() {
           <Route path="/dashboard/notifications" element={<RequireRole permissions={['view_notifications']}><NotificationsPage /></RequireRole>} />
 
           {/* Captain */}
-          <Route path="/captain" element={<RequireRole permissions={['view_dashboard']}><CaptainHomePage /></RequireRole>} />
+          <Route path="/captain" element={<RequireRole permissions={['view_dashboard']}><CaptainDashboardPage /></RequireRole>} />
           <Route path="/captain/tables" element={<RequireRole permissions={['view_tables']}><CaptainTablesPage /></RequireRole>} />
           <Route path="/captain/order" element={<RequireRole permissions={['take_orders']}><CaptainOrderPage /></RequireRole>} />
+          <Route path="/captain/order/:tableId" element={<RequireRole permissions={['take_orders']}><CaptainOrderPage /></RequireRole>} />
           <Route path="/captain/orders" element={<RequireRole permissions={['view_orders']}><CaptainOrdersPage /></RequireRole>} />
 
           {/* Kitchen */}
