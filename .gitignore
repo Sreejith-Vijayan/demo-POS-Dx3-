@@ -1,0 +1,21 @@
+# Cafe ERP & POS
+node_modules/
+dist/
+build/
+.venv/
+venv/
+__pycache__/
+*.pyc
+*.pyo
+.env
+.env.local
+cafe_erp.db
+*.log
+.DS_Store
+.idea/
+.vscode/
+coverage/
+*.egg-info/
+.pytest_cache/
+frontend/dist/
+backend/.mypy_cache/
