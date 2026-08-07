@@ -9,6 +9,10 @@
         {
             "src": "/api/(.*)",
             "dest": "backend/app/main.py"
+        },
+        {
+            "src": "/(.*)",
+            "dest": "backend/app/main.py"
         }
     ],
     "env": {
