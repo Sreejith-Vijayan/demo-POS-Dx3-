@@ -1,7 +1,24 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { captainApi } from '@/features/captain/api'
 import { menuApi } from '@/services/api'
-import type { CaptainTable, CaptainOrderSummary, OrderHistoryItem } from '@/features/captain/types'
+import type {
+  CaptainTable,
+  CaptainOrderSummary,
+  MenuItem,
+  Order,
+  OrderHistoryItem,
+  OrderItemPayload,
+} from '@/features/captain/types'
+
+type MenuCategory = { id: number; name: string }
+type UpdateOrderVariables = {
+  orderId: number
+  payload: { status?: string; notes?: string; items?: OrderItemPayload[] }
+}
+type CancelItemVariables = {
+  orderId: number
+  payload: { order_item_id: number; reason: string }
+}
 
 export function useTables() {
   return useQuery<{ items: CaptainTable[]; total: number }, Error>({
@@ -18,14 +35,14 @@ export function useCaptainOrders() {
 }
 
 export function useMenu() {
-  return useQuery({
+  return useQuery<{ items: MenuItem[]; total: number }, Error>({
     queryKey: ['menu'],
-    queryFn: menuApi.list,
+    queryFn: () => menuApi.list(),
   })
 }
 
 export function useMenuCategories() {
-  return useQuery({
+  return useQuery<{ items: MenuCategory[]; total: number }, Error>({
     queryKey: ['menu', 'categories'],
     queryFn: menuApi.categories,
   })
@@ -63,7 +80,7 @@ export function useCreateOrder() {
 export function useUpdateOrder() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: ({ orderId, payload }) =>
+    mutationFn: ({ orderId, payload }: UpdateOrderVariables) =>
         captainApi.updateOrder(orderId, payload),
     onSuccess: () => {
         qc.invalidateQueries({
@@ -111,7 +128,7 @@ export function useSendKOT() {
 export function useCancelItem() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: ({ orderId, payload }) =>
+    mutationFn: ({ orderId, payload }: CancelItemVariables) =>
         captainApi.cancelItem(orderId, payload),
     onSuccess: () => {
         qc.invalidateQueries({
