@@ -43,6 +43,6 @@ def get_db() -> Generator[Session, None, None]:
 def init_db() -> None:
     """Create all tables. Used at startup / seed time."""
     # Import models so metadata is registered
-    from app import models  # noqa: F401
+    from backend.app import models  # noqa: F401
 
     Base.metadata.create_all(bind=engine)

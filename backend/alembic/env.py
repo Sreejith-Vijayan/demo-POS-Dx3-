@@ -3,11 +3,12 @@
 from logging.config import fileConfig
 
 from alembic import context
+# pyrefly: ignore [missing-import]
 from sqlalchemy import engine_from_config, pool
 
-from app.config import get_settings
-from app.database import Base
-from app import models  # noqa: F401 — register models
+from backend.app.config import get_settings
+from backend.app.database import Base
+from backend.app import models  # noqa: F401 — register models
 
 config = context.config
 if config.config_file_name is not None:
