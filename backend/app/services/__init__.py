@@ -4,6 +4,7 @@ from decimal import Decimal
 from typing import List, Optional
 
 from fastapi import Depends
+# pyrefly: ignore [missing-import]
 from sqlalchemy.orm import Session
 
 from app.database import get_db
