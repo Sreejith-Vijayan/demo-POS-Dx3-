@@ -4,7 +4,7 @@ from typing import List, Optional
 
 from sqlalchemy.orm import Session
 
-from app.models import (
+from backend.app.models import (
     Customer,
     Employee,
     Feedback,
@@ -17,7 +17,7 @@ from app.models import (
     Setting,
     Table,
 )
-from app.repositories.base import BaseRepository
+from backend.app.repositories.base import BaseRepository
 
 
 class MenuCategoryRepository(BaseRepository[MenuCategory]):

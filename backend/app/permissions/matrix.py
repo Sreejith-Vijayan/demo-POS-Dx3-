@@ -2,7 +2,7 @@
 
 from typing import Dict, Set
 
-from app.core.enums import PermissionEnum, RoleEnum
+from backend.app.core.enums import PermissionEnum, RoleEnum
 
 # Permission sets per role
 ROLE_PERMISSIONS: Dict[RoleEnum, Set[PermissionEnum]] = {

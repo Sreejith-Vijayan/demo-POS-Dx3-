@@ -1,4 +1,4 @@
-from app.models.entities import (
+from backend.app.models.entities import (
     AuditLog,
     Branch,
     Customer,

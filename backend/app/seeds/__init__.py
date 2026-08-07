@@ -1,3 +1,3 @@
-from app.seeds.seed import seed_all
+from backend.app.seeds.seed import seed_all
 
 __all__ = ["seed_all"]

@@ -2,17 +2,17 @@
 
 from fastapi import APIRouter
 
-from app.api.v1.auth.router import router as auth_router
-from app.api.v1.captain.router import router as captain_router
-from app.api.v1.cashier.router import router as cashier_router
-from app.api.v1.customer.router import router as customer_router
-from app.api.v1.dashboard.router import router as dashboard_router
-from app.api.v1.employee.router import router as employee_router
-from app.api.v1.inventory.router import router as inventory_router
-from app.api.v1.kitchen.router import router as kitchen_router
-from app.api.v1.menu.router import orders_router, router as menu_router
-from app.api.v1.reports.router import router as reports_router
-from app.api.v1.settings.router import (
+from backend.app.api.v1.auth.router import router as auth_router
+from backend.app.api.v1.captain.router import router as captain_router
+from backend.app.api.v1.cashier.router import router as cashier_router
+from backend.app.api.v1.customer.router import router as customer_router
+from backend.app.api.v1.dashboard.router import router as dashboard_router
+from backend.app.api.v1.employee.router import router as employee_router
+from backend.app.api.v1.inventory.router import router as inventory_router
+from backend.app.api.v1.kitchen.router import router as kitchen_router
+from backend.app.api.v1.menu.router import orders_router, router as menu_router
+from backend.app.api.v1.reports.router import router as reports_router
+from backend.app.api.v1.settings.router import (
     feedback_router,
     notifications_router,
     payments_router,

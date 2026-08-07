@@ -5,12 +5,12 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.v1.router import api_router
-from app.config import get_settings
-from app.database import SessionLocal, init_db
-from app.middleware import RequestLoggingMiddleware
-from app.schemas import HealthResponse
-from app.seeds import seed_all
+from backend.app.api.v1.router import api_router
+from backend.app.config import get_settings
+from backend.app.database import SessionLocal, init_db
+from backend.app.middleware import RequestLoggingMiddleware
+from backend.app.schemas import HealthResponse
+from backend.app.seeds import seed_all
 
 
 @asynccontextmanager

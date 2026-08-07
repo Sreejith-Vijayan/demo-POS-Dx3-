@@ -2,10 +2,10 @@ from typing import Optional
 
 from fastapi import APIRouter, Depends
 
-from app.core.enums import PermissionEnum
-from app.permissions import require_permissions
-from app.schemas import MenuItemCreate, OrderCancelItem, OrderCreate, OrderUpdate
-from app.services import MenuService, OrderService, get_menu_service, get_order_service
+from backend.app.core.enums import PermissionEnum
+from backend.app.permissions import require_permissions
+from backend.app.schemas import MenuItemCreate, OrderCancelItem, OrderCreate, OrderUpdate
+from backend.app.services import MenuService, OrderService, get_menu_service, get_order_service
 
 router = APIRouter(prefix="/menu", tags=["menu"])
 

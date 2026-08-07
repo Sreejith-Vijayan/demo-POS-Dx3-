@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends
 
-from app.core.enums import PermissionEnum
-from app.permissions import require_permissions
-from app.schemas import PaymentCreate
-from app.services import CashierService, get_cashier_service
+from backend.app.core.enums import PermissionEnum
+from backend.app.permissions import require_permissions
+from backend.app.schemas import PaymentCreate
+from backend.app.services import CashierService, get_cashier_service
 
 router = APIRouter(prefix="/cashier", tags=["cashier"])
 

@@ -1,5 +1,5 @@
-from app.schemas.common import HealthResponse, MessageResponse, PaginatedResponse, RoleInfo
-from app.schemas.domain import (
+from backend.app.schemas.common import HealthResponse, MessageResponse, PaginatedResponse, RoleInfo
+from backend.app.schemas.domain import (
     CustomerOut,
     DashboardStats,
     EmployeeOut,

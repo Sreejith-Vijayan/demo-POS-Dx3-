@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends
 
-from app.core.enums import PermissionEnum
-from app.permissions import require_permissions
-from app.services import CustomerService, get_customer_service
+from backend.app.core.enums import PermissionEnum
+from backend.app.permissions import require_permissions
+from backend.app.services import CustomerService, get_customer_service
 
 router = APIRouter(prefix="/customers", tags=["customers"])
 

@@ -2,10 +2,12 @@
 
 from typing import Generator
 
+# pyrefly: ignore [missing-import]
 from sqlalchemy import create_engine
+# pyrefly: ignore [missing-import]
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 
-from app.config import get_settings
+from backend.app.config import get_settings
 
 
 class Base(DeclarativeBase):

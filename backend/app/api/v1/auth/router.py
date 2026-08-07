@@ -2,9 +2,9 @@
 
 from fastapi import APIRouter, Depends
 
-from app.core.enums import RoleEnum
-from app.permissions import CurrentUserContext, get_current_user, get_permissions_for_role
-from app.schemas import MessageResponse, RoleInfo
+from backend.app.core.enums import RoleEnum
+from backend.app.permissions import CurrentUserContext, get_current_user, get_permissions_for_role
+from backend.app.schemas import MessageResponse, RoleInfo
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 

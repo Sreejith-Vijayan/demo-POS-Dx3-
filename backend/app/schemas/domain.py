@@ -6,7 +6,7 @@ from typing import List, Optional
 
 from pydantic import BaseModel, Field
 
-from app.schemas.common import ORMModel, TimestampSchema
+from backend.app.schemas.common import ORMModel, TimestampSchema
 
 
 # --- Menu ---

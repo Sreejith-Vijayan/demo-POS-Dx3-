@@ -5,8 +5,8 @@ from decimal import Decimal
 
 from sqlalchemy.orm import Session
 
-from app.core.enums import PermissionEnum, RoleEnum
-from app.models import (
+from backend.app.core.enums import PermissionEnum, RoleEnum
+from backend.app.models import (
     Branch,
     Customer,
     Employee,
@@ -25,7 +25,7 @@ from app.models import (
     Table,
     User,
 )
-from app.permissions.matrix import ROLE_PERMISSIONS
+from backend.app.permissions.matrix import ROLE_PERMISSIONS
 
 
 def seed_all(db: Session) -> None:

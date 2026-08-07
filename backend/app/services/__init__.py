@@ -7,9 +7,9 @@ from fastapi import Depends
 # pyrefly: ignore [missing-import]
 from sqlalchemy.orm import Session
 
-from app.database import get_db
-from app.models import MenuItem, Order, OrderItem
-from app.repositories import (
+from backend.app.database import get_db
+from backend.app.models import MenuItem, Order, OrderItem
+from backend.app.repositories import (
     CustomerRepository,
     EmployeeRepository,
     FeedbackRepository,
@@ -22,8 +22,8 @@ from app.repositories import (
     SettingRepository,
     TableRepository,
 )
-from app.core.enums import OrderStatus
-from app.schemas import (
+from backend.app.core.enums import OrderStatus
+from backend.app.schemas import (
     DashboardStats,
     FeedbackCreate,
     OrderCreate,

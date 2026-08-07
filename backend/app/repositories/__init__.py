@@ -1,5 +1,5 @@
-from app.repositories.base import BaseRepository
-from app.repositories.domain import (
+from backend.app.repositories.base import BaseRepository
+from backend.app.repositories.domain import (
     CustomerRepository,
     EmployeeRepository,
     FeedbackRepository,

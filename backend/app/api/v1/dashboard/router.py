@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends
 
-from app.core.enums import PermissionEnum
-from app.permissions import require_permissions
-from app.schemas import DashboardStats
-from app.services import DashboardService, get_dashboard_service
+from backend.app.core.enums import PermissionEnum
+from backend.app.permissions import require_permissions
+from backend.app.schemas import DashboardStats
+from backend.app.services import DashboardService, get_dashboard_service
 
 router = APIRouter(prefix="/dashboard", tags=["dashboard"])
 

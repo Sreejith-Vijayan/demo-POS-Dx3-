@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends
 
-from app.core.enums import PermissionEnum
-from app.permissions import require_permissions
-from app.schemas import FeedbackCreate
-from app.services import (
+from backend.app.core.enums import PermissionEnum
+from backend.app.permissions import require_permissions
+from backend.app.schemas import FeedbackCreate
+from backend.app.services import (
     FeedbackService,
     NotificationService,
     SettingsService,

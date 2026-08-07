@@ -4,9 +4,9 @@ from typing import Callable, List, Optional
 
 from fastapi import Depends, Header, HTTPException, status
 
-from app.config import get_settings
-from app.core.enums import PermissionEnum, RoleEnum
-from app.permissions.matrix import role_has_permission
+from backend.app.config import get_settings
+from backend.app.core.enums import PermissionEnum, RoleEnum
+from backend.app.permissions.matrix import role_has_permission
 
 
 class CurrentUserContext:
