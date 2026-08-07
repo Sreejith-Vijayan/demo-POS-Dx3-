@@ -126,7 +126,7 @@ export function CaptainOrderPage() {
             <Button
               size="lg"
               onClick={() => createOrder.mutate({ table_id: tableId || undefined, order_type: 'dine_in', items: cart })}
-              disabled={isEmpty || createOrder.isLoading}
+              disabled={isEmpty || createOrder.isPending}
             >
               Start order
             </Button>
@@ -134,7 +134,7 @@ export function CaptainOrderPage() {
               size="lg"
               variant="secondary"
               onClick={() => holdOrder.mutate(0)}
-              disabled={isEmpty || holdOrder.isLoading}
+              disabled={isEmpty || holdOrder.isPending}
             >
               Hold order
             </Button>
@@ -142,7 +142,7 @@ export function CaptainOrderPage() {
               size="lg"
               variant="secondary"
               onClick={() => sendKot.mutate(0)}
-              disabled={isEmpty || sendKot.isLoading}
+              disabled={isEmpty || sendKot.isPending}
             >
               Send to Kitchen
             </Button>

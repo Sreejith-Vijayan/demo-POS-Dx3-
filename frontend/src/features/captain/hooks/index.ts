@@ -1,7 +1,24 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { captainApi } from '@/features/captain/api'
 import { menuApi } from '@/services/api'
-import type { CaptainTable, CaptainOrderSummary, OrderHistoryItem } from '@/features/captain/types'
+import type {
+  CaptainTable,
+  CaptainOrderSummary,
+  MenuItem,
+  Order,
+  OrderHistoryItem,
+  OrderItemPayload,
+} from '@/features/captain/types'
+
+type MenuCategory = { id: number; name: string }
+type UpdateOrderVariables = {
+  orderId: number
+  payload: { status?: string; notes?: string; items?: OrderItemPayload[] }
+}
+type CancelItemVariables = {
+  orderId: number
+  payload: { order_item_id: number; reason: string }
+}
 
 export function useTables() {
   return useQuery<{ items: CaptainTable[]; total: number }, Error>({
@@ -18,14 +35,14 @@ export function useCaptainOrders() {
 }
 
 export function useMenu() {
-  return useQuery({
+  return useQuery<{ items: MenuItem[]; total: number }, Error>({
     queryKey: ['menu'],
-    queryFn: menuApi.list,
+    queryFn: () => menuApi.list(),
   })
 }
 
 export function useMenuCategories() {
-  return useQuery({
+  return useQuery<{ items: MenuCategory[]; total: number }, Error>({
     queryKey: ['menu', 'categories'],
     queryFn: menuApi.categories,
   })
@@ -53,24 +70,24 @@ export function useCreateOrder() {
   return useMutation({
     mutationFn: captainApi.createOrder,
     onSuccess: () => {
-        qc.invalidateQueries({
-            queryKey: ['captain', 'orders'],
-        })
+      qc.invalidateQueries({
+        queryKey: ['captain', 'orders'],
+      })
     },
-})
+  })
 }
 
 export function useUpdateOrder() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: ({ orderId, payload }) =>
-        captainApi.updateOrder(orderId, payload),
+    mutationFn: ({ orderId, payload }: UpdateOrderVariables) =>
+      captainApi.updateOrder(orderId, payload),
     onSuccess: () => {
-        qc.invalidateQueries({
-            queryKey: ['captain', 'orders'],
-        })
+      qc.invalidateQueries({
+        queryKey: ['captain', 'orders'],
+      })
     },
-})
+  })
 }
 
 export function useHoldOrder() {
@@ -86,39 +103,39 @@ export function useResumeOrder() {
   const qc = useQueryClient()
   return useMutation({
     mutationFn: (orderId: number) =>
-        captainApi.resumeOrder(orderId),
+      captainApi.resumeOrder(orderId),
     onSuccess: () => {
-        qc.invalidateQueries({
-            queryKey: ['captain', 'orders'],
-        })
+      qc.invalidateQueries({
+        queryKey: ['captain', 'orders'],
+      })
     },
-})
+  })
 }
 
 export function useSendKOT() {
   const qc = useQueryClient()
-    return useMutation({
+  return useMutation({
     mutationFn: (orderId: number) =>
-        captainApi.sendKot(orderId),
+      captainApi.sendKot(orderId),
     onSuccess: () => {
-        qc.invalidateQueries({
-            queryKey: ['captain', 'orders'],
-        })
+      qc.invalidateQueries({
+        queryKey: ['captain', 'orders'],
+      })
     },
-})
+  })
 }
 
 export function useCancelItem() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: ({ orderId, payload }) =>
-        captainApi.cancelItem(orderId, payload),
+    mutationFn: ({ orderId, payload }: CancelItemVariables) =>
+      captainApi.cancelItem(orderId, payload),
     onSuccess: () => {
-        qc.invalidateQueries({
-            queryKey: ['captain', 'orders'],
-        })
+      qc.invalidateQueries({
+        queryKey: ['captain', 'orders'],
+      })
     },
-})
+  })
 }
 
 export function useOrderHistory(tableId: number) {

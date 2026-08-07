@@ -1,3 +1,4 @@
+
 export type TableStatus = 'available' | 'occupied' | 'reserved' | 'billing' | 'merged' | 'cleaning'
 
 export interface CaptainTable {
